@@ -95,4 +95,131 @@ button, input {
   margin-top: 20px;
   text-align: left;
   display: inline-block;
+}// Firebase config (replace with your Firebase project config)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Game variables
+let score = 0;
+let highScore = 0;
+let level = 1;
+let timeLeft = 10;
+let gameRunning = false;
+let timer;
+
+// DOM elements
+const playerNameInput = document.getElementById('playerName');
+const clickButton = document.getElementById('clickButton');
+const startButton = document.getElementById('startButton');
+const resetButton = document.getElementById('resetButton');
+const scoreDisplay = document.getElementById('score');
+const highScoreDisplay = document.getElementById('highScore');
+const timeDisplay = document.getElementById('time');
+const levelDisplay = document.getElementById('level');
+const leaderboardEl = document.getElementById('leaderboard');
+
+// Sounds (optional - upload sounds folder if you want)
+const clickSound = new Audio('sounds/click.mp3');
+const levelUpSound = new Audio('sounds/levelup.mp3');
+
+clickButton.disabled = true;
+
+// Start game
+startButton.addEventListener('click', () => {
+  const playerName = playerNameInput.value.trim();
+  if(!playerName) { alert("Enter your name!"); return; }
+
+  if(!gameRunning) {
+    score = 0;
+    level = 1;
+    timeLeft = 10;
+    scoreDisplay.textContent = score;
+    levelDisplay.textContent = level;
+    timeDisplay.textContent = timeLeft;
+    gameRunning = true;
+    clickButton.disabled = false;
+
+    timer = setInterval(() => {
+      timeLeft--;
+      timeDisplay.textContent = timeLeft;
+      if(timeLeft <= 0) endGame(playerName);
+    }, 1000);
+  }
+});
+
+// Click button
+clickButton.addEventListener('click', () => {
+  if(gameRunning) {
+    score++;
+    scoreDisplay.textContent = score;
+    clickSound.currentTime = 0;
+    clickSound.play();
+
+    if(score % 5 === 0) {
+      level++;
+      levelDisplay.textContent = level;
+      levelUpSound.currentTime = 0;
+      levelUpSound.play();
+    }
+  }
+});
+
+// Reset button
+resetButton.addEventListener('click', () => {
+  clearInterval(timer);
+  score = 0;
+  level = 1;
+  timeLeft = 10;
+  gameRunning = false;
+  scoreDisplay.textContent = score;
+  levelDisplay.textContent = level;
+  timeDisplay.textContent = timeLeft;
+  clickButton.disabled = true;
+});
+
+// End game and save to Firebase
+function endGame(playerName) {
+  clearInterval(timer);
+  gameRunning = false;
+  clickButton.disabled = true;
+
+  if(score > highScore) {
+    highScore = score;
+    highScoreDisplay.textContent = highScore;
+  }
+
+  alert(`Time's up! Your Score: ${score}`);
+
+  const newScoreRef = db.ref('leaderboard').push();
+  newScoreRef.set({
+    name: playerName,
+    score: score
+  });
 }
+
+// Listen for leaderboard updates
+db.ref('leaderboard').orderByChild('score').limitToLast(5).on('value', snapshot => {
+  const data = snapshot.val();
+  const scores = [];
+  for(let key in data) scores.push(data[key]);
+  scores.sort((a,b) => b.score - a.score);
+
+  leaderboardEl.innerHTML = '';
+  scores.forEach((entry, i) => {
+    const li = document.createElement('li');
+    li.textContent = `${entry.name} - ${entry.score} points`;
+    leaderboardEl.appendChild(li);
+  });
+});
+script.js
