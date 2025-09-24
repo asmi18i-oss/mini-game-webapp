@@ -32,3 +32,67 @@ index.html<!DOCTYPE html>
   <script src="script.js"></script>
 </body>
 </html>
+style.css
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to right, #43cea2, #185a9d);
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 50px;
+}
+
+.game-container {
+  background: rgba(0,0,0,0.3);
+  padding: 30px;
+  border-radius: 15px;
+  display: inline-block;
+}
+
+button, input {
+  padding: 15px 25px;
+  margin: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+#clickButton {
+  background-color: #28a745;
+  color: #fff;
+}
+
+#clickButton:hover {
+  background-color: #3eda63;
+}
+
+#startButton {
+  background-color: #007bff;
+  color: #fff;
+}
+
+#startButton:hover {
+  background-color: #339aff;
+}
+
+#resetButton {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+#resetButton:hover {
+  background-color: #e95c67;
+}
+
+#score, #highScore, #time, #level {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+#leaderboard {
+  margin-top: 20px;
+  text-align: left;
+  display: inline-block;
+}
